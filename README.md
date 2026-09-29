@@ -1,5 +1,5 @@
-# GISS 366 Lab 05
-[update your description here] 
+# GISS 366 - Midterm Prep - Fixit Exercises
+These exercises are built as test environments to practice skills from Weeks 1-6 (labs 1-5). Please see Canvas for specific instructions and updates. 
 
 ## Web Map Gallery
 

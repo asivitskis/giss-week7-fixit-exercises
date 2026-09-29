@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@^6.10.0/dist/maplibre-gl.css" />
+    <style>
+        body { margin: 0; }
+        #map { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script type="module">
+        import * as maplibregl from 'https://unpkg.com/maplibre-gl@^6.10.0/dist/maplibre-gl.mjs';
+
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://tiles.openfreemap.org/styles/positron',
+            center: [-105.7918, 34.8365],
+            zoom: 6,
+            pitch: 0,
+            bearing: 0
+        });
+        window.map = map;   // exposes map to the browser console for debugging
+
+        map.on('load', () => {
+            map.addSource('cities', {
+                type: 'geojson',
+                data: 'data/nm_populated_places.geojson'
+            });
+
+            map.addLayer({
+                id: 'cities-points',
+                type: 'circle',
+                source: 'cities',
+                paint: {
+                    'circle-radius': 4,
+                    'circle-color': '#007cbf'
+                }
+            });
+        });
+
+        // When a point is clicked, open a popup
+        map.on('click', 'cities-points', (e) => {
+
+            const coordinates = e.features[0].geometry.coordinates.slice();
+            const name = e.features[0].properties.name;
+
+            // Keep popup attached to the correct copy of the point
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            new maplibregl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(`Name: ${e.features[0].properties.Name}<br>
+                    County Name: ${e.features[0].properties.County_Name}`)
+                .addTo(map);
+        });
+
+        // Change cursor to pointer when hovering over a point
+        map.on('mouseenter', 'cities-points', () => {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+
+        // Change cursor back when leaving a point
+        map.on('mouseleave', 'cities-points', () => {
+            map.getCanvas().style.cursor = '';
+        });
+    </script>
+</body>
+</html>
